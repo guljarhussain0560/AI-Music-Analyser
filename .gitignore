@@ -1,0 +1,22 @@
+# Ignore specific pretrained model folders
+pretrained_models/2stems/
+pretrained_models/4stems/
+pretrained_models/5stems/
+
+# Optional: Ignore any checkpoint files in any subfolder
+pretrained_models/**/checkpoint
+
+# Optional: Ignore all hidden files like .DS_Store or system files
+.DS_Store
+Thumbs.db
+
+# Optional: Ignore Python cache
+__pycache__/
+*.py[cod]
+
+# Optional: Ignore virtual environments
+venv/
+.env/
+
+# Optional: Ignore VSCode settings
+.vscode/
