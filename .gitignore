@@ -4,6 +4,7 @@ pretrained_models/4stems/
 pretrained_models/5stems/
 
 .env
+env
 
 
 # Optional: Ignore any checkpoint files in any subfolder
