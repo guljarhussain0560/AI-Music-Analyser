@@ -147,7 +147,7 @@ def full_song_processing_pipeline(db: Session, source_url: str, user_id: int):
 
     except Exception as e:
         print(f"❌ An error occurred during the pipeline: {e}")
-        # Optionally roll back any database changes if the process fails midway
+        # Optionally roll back any database changes if the process fails from midway
         db.rollback()
         return None
 
