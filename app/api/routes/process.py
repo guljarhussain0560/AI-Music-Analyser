@@ -1,23 +1,39 @@
-from fastapi import APIRouter, UploadFile, File, Query, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, UploadFile, File, Query, HTTPException
 from pathlib import Path
 import uuid
 
+from groq import BaseModel
+from requests import Session
+
+from app.db.database import SessionLocal
+from app.services import audio_processing, crud
+
 from app.services.audio_processing import (
     process_spotify_link,
-    process_youtube_link,
     separate_audio_file
 )
+
 from app.utils.extract_lyrics import transcribe_lyrics
 from app.utils.lyrics_aligner import rewrite_lyrics_with_timestamps
 
 router = APIRouter()
 
+# Dependency to get a DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+class SongRequest(BaseModel):
+    url: str
+
+
+
 @router.post("/split")
 async def split_audio(file: UploadFile = File(...), prompt: str = Query(None)):
-    """
-    Upload and split audio from a local file.
-    Optionally rewrite lyrics using a custom prompt.
-    """
+
     try:
         # Save uploaded file to temp directory
         unique_id = uuid.uuid4().hex
@@ -55,49 +71,26 @@ async def split_audio(file: UploadFile = File(...), prompt: str = Query(None)):
 
 
 
-@router.post("/split/youtube")
-def split_youtube_audio(url: str = Query(...), prompt: str = Query(None)):
-    try:
-        result = process_youtube_link(url)
 
-        input_path = Path(result["input_path"])
-        output_dir = Path(result["output_dir"])
-        segments = result["lyrics"]
+@router.post("/process_url")
+def create_song_processing_job(
+    song_request: SongRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
+    # For this example, we assume a user with ID 1 exists.
+    # In a real app, you would get this from an authentication system.
+    user = crud.get_user(db, user_id=1)
+    if not user:
+        # In a real app, you would create the user or handle this case.
+        raise HTTPException(status_code=404, detail="User with ID 1 not found.")
 
-        #print("segments in process : ", segments)
-
-        if prompt:
-            rewritten = rewrite_lyrics_with_timestamps(segments, user_prompt=prompt)
-            return {
-                "status": "ok",
-                "source": "youtube",
-                "output_dir": str(output_dir),
-                "lyrics": rewritten
-            }
-
-        return {
-            "status": "ok",
-            "source": "youtube",
-            "output_dir": str(output_dir),
-            "lyrics": segments
-        }
-
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        print("❌ Route failed:", e)
-        raise HTTPException(status_code=500, detail=str(e))
-
-        
-        
-
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        print("❌ Route failed:", e)
-        raise HTTPException(status_code=500, detail=str(e))
-
-
+    # Add the long-running job to the background
+    background_tasks.add_task(
+        audio_processing.full_song_processing_pipeline, db, song_request.url, user.id
+    )
+    
+    return {"message": "Song processing started in the background."}
 
 
 

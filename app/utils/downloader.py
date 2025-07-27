@@ -2,7 +2,7 @@ import subprocess
 import os
 import uuid
 
-def download_from_youtube(url: str, output_dir: str = "temp") -> str:
+def download_from_youtube(url: str, output_dir: str) -> str:
     os.makedirs(output_dir, exist_ok=True)
     filename = f"{uuid.uuid4()}.mp3"
     output_path = os.path.join(output_dir, filename)
@@ -16,7 +16,7 @@ def download_from_youtube(url: str, output_dir: str = "temp") -> str:
     subprocess.run(command, check=True)
     return output_path
 
-def download_from_spotify(url: str, output_dir: str = "temp") -> str:
+def download_from_spotify(url: str, output_dir: str) -> str:
     os.makedirs(output_dir, exist_ok=True)
     command = ["spotdl", url, "--output", output_dir]
     subprocess.run(command, check=True)

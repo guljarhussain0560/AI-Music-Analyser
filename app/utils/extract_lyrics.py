@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from groq import Groq
 from pydub import AudioSegment
 from app.utils.lyrics_aligner import rewrite_lyrics_with_timestamps
+from app.utils.seg_to_lrc import convert_lyrics_to_lrc
 
 print("🔧 Starting extract_lyrics.py")  # Debug
 
@@ -45,19 +46,25 @@ def transcribe_lyrics(audio_path: str) -> list:
     file_size_mb = os.path.getsize(mp3_path) / (1024 * 1024)
     print(f"📦 File size: {file_size_mb:.2f} MB")
 
+
     try:
         with open(mp3_path, "rb") as audio_file:
             print("🔊 Starting transcription...")
             transcription = client.audio.transcriptions.create(
                 file=audio_file,
-                model="whisper-large-v3-turbo",
+                model="whisper-large-v3",
                 response_format="verbose_json"
             )
     except Exception as e:
         print(f"❌ Transcription failed: {e}")
         raise HTTPException(status_code=500, detail="Transcription failed due to timeout or format error")
+    
+    language = getattr(transcription, "language", None)
+    duration = getattr(transcription, "duration", None)
+    print(f"🌐 Language: {language}")
+    print(f"⏱️ Duration: {duration}")
+    
 
-    print(f"🌐 Detected language: {transcription.language}")
 
     segments = [
         {
@@ -67,9 +74,14 @@ def transcribe_lyrics(audio_path: str) -> list:
         }
         for seg in transcription.segments
     ]
+    
+    original_lrc=convert_lyrics_to_lrc(segments) 
+    print(f"🎵 Original LRC:\n{original_lrc}")
+    
+    result = {
+        "language": language,
+        "duration": duration,
+        "original_lrc": original_lrc
+    }
 
-    print("✅ Transcription completed. Segments extracted:")
-    for seg in segments[:20]:  # Show only first 20 for brevity
-        print(seg)
-
-    return transcription.segments
+    return result

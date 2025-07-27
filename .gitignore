@@ -3,6 +3,7 @@ pretrained_models/2stems/
 pretrained_models/4stems/
 pretrained_models/5stems/
 
+
 # Optional: Ignore any checkpoint files in any subfolder
 pretrained_models/**/checkpoint
 
@@ -16,7 +17,7 @@ __pycache__/
 
 # Optional: Ignore virtual environments
 venv/
-.env/
+.env
 
 # Optional: Ignore VSCode settings
-.vscode/
+.vscode

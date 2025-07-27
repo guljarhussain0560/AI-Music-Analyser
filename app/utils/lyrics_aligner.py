@@ -2,91 +2,67 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
+# Load .env file
 print("🔧 Loading .env file...")
 load_dotenv()
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
+# Get GROQ API key from environment
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+print(f"🔑 GROQ_API_KEY loaded: {GROQ_API_KEY is not None}")
 if not GROQ_API_KEY:
-    raise ValueError("❌ GROQ_API_KEY not found. Please check your .env file.")
+    raise ValueError("❌ GROQ_API_KEY not found. Please check your .env file or environment variables.")
 
 # Initialize Groq client
 print("🤖 Initializing Groq client...")
 client = Groq(api_key=GROQ_API_KEY)
 
-def rewrite_lyric_line(line: str, user_prompt: str) -> str:
+
+
+
+def rewrite_lyrics_with_timestamps(lrc_string: str, language: str, duration: float, user_prompt: str) -> str:
     """
-    Rewrites a single lyric line using Groq, following Indian poetic theme strictly.
+    Rewrite the entire lyrics (LRC string) using Groq AI in one go, not segment-wise.
+
+    Args:
+        lrc_string: The full LRC lyrics as a string (with timestamps).
+        language: The language of the lyrics (e.g., 'en').
+        duration: The total duration of the song in seconds.
+        user_prompt: Prompt instruction to apply to the entire lyrics.
+
+    Returns:
+        The rewritten LRC string (with timestamps preserved if possible).
     """
-    prompt = f"""
-You are a professional Indian lyricist. Rewrite the following English lyric line to reflect an Indian cultural theme and poetic tone. Follow these strict rules:
+    print(f"📝 Rewriting entire lyrics with Groq AI. Language: {language}, Duration: {duration}, Prompt: {user_prompt}")
+    print(f"[DEBUG] Original LRC:\n{lrc_string}")
 
-- Use poetic and culturally rich language that fits the Indian theme.
-- Preserve rhythm and syllable structure.
-- Do NOT return multiple options or explanations.
-- DO NOT include quotes or say “Here’s”.
-- Only return the rewritten line.
+    system_prompt = f"""
+You are a creative and poetic songwriting assistant. Your task is to rewrite the following song lyrics in LRC format, based on the user's instruction.
+Keep the timestamps and structure of the LRC file unchanged.
+Rewrite the lyrics in the same language: {language}.
+The total song duration is {duration} seconds.
+Apply the following user instruction to the entire lyrics: {user_prompt}
+Only return the new LRC content, do not add any explanation or extra text.
+"""
 
-Instruction: {user_prompt}
-
-Original: {line}
-
-Rewritten:
-""".strip()
+    print(f"[DEBUG] System prompt sent to Groq:\n{system_prompt.strip()}")
 
     try:
+        print("🚀 Sending full lyrics to Groq API...")
         response = client.chat.completions.create(
             model="meta-llama/llama-4-scout-17b-16e-instruct",
-            messages=[{"role": "user", "content": prompt}],
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": lrc_string}
+            ],
             temperature=1.0,
-            max_completion_tokens=100,
+            max_completion_tokens=2048,
             top_p=1.0,
             stream=False
         )
-        result = response.choices[0].message.content.strip()
-
-        # Filter clean output
-        for l in result.splitlines():
-            l = l.strip().strip('"')
-            if l and not any(bad in l.lower() for bad in [
-                "here's", "option", "alternatively", "let me know", "suggest", "you could"
-            ]):
-                return l
-        return result.strip().strip('"')
+        print("✅ Received response from Groq API.")
+        rewritten_lrc = response.choices[0].message.content.strip()
+        print(f"✅ Rewritten LRC:\n{rewritten_lrc}\n")
+        return rewritten_lrc
     except Exception as e:
-        print(f"❌ Error rewriting line: {e}")
-        return line
-
-
-def rewrite_lyrics_with_timestamps(segments: list[dict], user_prompt: str, language: str = "en") -> list[dict]:
-    """
-    Rewrite lyric segments using Groq while preserving timestamps.
-
-    Args:
-        segments: List of dicts with keys 'start', 'end', 'text'
-        user_prompt: Prompt instruction to apply to each lyric line
-        language: Detected language code ("en", "hi", "ur", etc.)
-
-    Returns:
-        List of dicts with keys: 'start', 'end', 'text'
-    """
-    rewritten = []
-
-    for seg in segments:
-        original_text = seg.get("text", "").strip()
-        start = seg.get("start")
-        end = seg.get("end")
-
-        if not original_text or start is None or end is None:
-            rewritten.append({"start": start or 0.0, "end": end or (start or 0.0 + 2.0), "text": ""})
-            continue
-
-        try:
-            new_text = rewrite_lyric_line(original_text, user_prompt, language)
-        except Exception:
-            new_text = original_text
-
-        rewritten.append({"start": start, "end": end, "text": new_text})
-
-    return rewritten
-
+        print(f"❌ Error calling Groq for full lyrics: {e}")
+        raise e
