@@ -16,9 +16,6 @@ if not GROQ_API_KEY:
 print("🤖 Initializing Groq client...")
 client = Groq(api_key=GROQ_API_KEY)
 
-
-
-
 def rewrite_lyrics_with_timestamps(lrc_string: str, language: str, duration: float, user_prompt: str) -> str:
     """
     Rewrite the entire lyrics (LRC string) using Groq AI in one go, not segment-wise.

@@ -69,3 +69,21 @@ def create_split(db: Session, split: schemas.SplitCreateDTO) -> models.Split:
     db.refresh(db_split)
     
     return db_split
+
+def get_song(db: Session, song_id: int):
+
+    return db.query(models.Song).filter(models.Song.id == song_id).first()
+
+def get_split_by_song_id(db: Session, song_id: int):
+
+    return db.query(models.Split).filter(models.Split.song_id == song_id).first()
+
+def get_split_bass_info_by_song_id(db: Session, song_id: int):
+    """
+    Retrieves only the bass url and description from the split record
+    associated with a given song ID.
+    """
+    return db.query(
+        models.Split.bass_audio_url,
+        models.Split.bass_description
+    ).filter(models.Split.song_id == song_id).first()

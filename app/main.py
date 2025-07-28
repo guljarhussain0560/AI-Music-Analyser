@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routes import auth, process 
+from app.api.routes import auth, get_analytics, process 
 
 app = FastAPI()
 
@@ -11,3 +11,4 @@ def read_root():
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 
 app.include_router(process.router, prefix="/process")
+app.include_router(get_analytics.router, prefix="/analytics", tags=["Analytics"])

@@ -2,7 +2,7 @@
 
 import os
 import multiprocessing
-import extract_analytics
+from app.utils import extract_analytics
 
 def run_analysis_in_parallel(stems_output_dir):
     """

@@ -96,3 +96,11 @@ class SplitResponseDTO(BaseModel):
 
     class Config:
         orm_mode = True
+        
+        
+class BassInfoDTO(BaseModel):
+    bass_audio_url: Optional[str] = None
+    bass_description: Optional[Dict[str, Any]] = None
+
+    class Config:
+        orm_mode = True
