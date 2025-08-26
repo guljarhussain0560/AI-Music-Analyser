@@ -8,7 +8,6 @@ import dotenv
 dotenv.load_dotenv()
 
 def upload_file_to_s3(file_path: str, object_name: str = None) -> str:
-
     s3_bucket = os.getenv("AWS_S3_BUCKET_NAME")
     if not s3_bucket:
         logging.error("AWS_S3_BUCKET_NAME environment variable is not set.")
@@ -17,7 +16,9 @@ def upload_file_to_s3(file_path: str, object_name: str = None) -> str:
     # If an S3 object name is not specified, generate a unique one
     if object_name is None:
         file_extension = os.path.splitext(file_path)[1]
-        object_name = f"audio/{uuid.uuid4()}{file_extension}"
+        file_name = os.path.basename(file_path)  # Just the file name
+        unique_name = f"{uuid.uuid4()}{file_extension}"
+        object_name = f"songs/original_song/{unique_name}"
 
     # Create an S3 client
     s3_client = boto3.client("s3")

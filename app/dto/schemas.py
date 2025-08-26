@@ -9,8 +9,10 @@ class UserCreate(BaseModel):
     username: str
     password: str
     name: Optional[str] = None
+    profile_picture_url: Optional[str] = None
 
-class UserLogin(BaseModel):
+
+class UserCredentials(BaseModel):
     username: str
     password: str
 
@@ -33,6 +35,24 @@ class Token(BaseModel):
 class GoogleToken(BaseModel):
     credential: str
     
+    
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
+    
+    
+#For Reset Password
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str
+
+class Message(BaseModel):
+    """A simple message response schema"""
+    message: str
 
 class SongCreateDTO(BaseModel):
     title: str
@@ -101,6 +121,52 @@ class SplitResponseDTO(BaseModel):
 class BassInfoDTO(BaseModel):
     bass_audio_url: Optional[str] = None
     bass_description: Optional[Dict[str, Any]] = None
+
+    class Config:
+        orm_mode = True
+        
+class VocalsInfoDTO(BaseModel):
+    vocals_audio_url: Optional[str] = None
+    vocals_description: Optional[Dict[str, Any]] = None
+
+    class Config:
+        orm_mode = True
+        
+class PianoInfoDTO(BaseModel):
+    piano_audio_url: Optional[str] = None
+    piano_description: Optional[Dict[str, Any]] = None
+
+    class Config:
+        orm_mode = True
+        
+class OtherInfoDTO(BaseModel):
+    other_audio_url: Optional[str] = None
+    other_description: Optional[Dict[str, Any]] = None
+
+    class Config:
+        orm_mode = True
+        
+class DrumInfoDTO(BaseModel):
+    drum_audio_url: Optional[str] = None
+    drum_description: Optional[Dict[str, Any]] = None
+
+    class Config:
+        orm_mode = True
+        
+class GuitarInfoDTO(BaseModel):
+    guitar_description: Optional[Dict[str, Any]] = None
+
+    class Config:
+        orm_mode = True
+        
+class FluteInfoDTO(BaseModel):
+    flute_description: Optional[Dict[str, Any]] = None
+
+    class Config:
+        orm_mode = True
+        
+class ViolinInfoDTO(BaseModel):
+    violin_description: Optional[Dict[str, Any]] = None
 
     class Config:
         orm_mode = True

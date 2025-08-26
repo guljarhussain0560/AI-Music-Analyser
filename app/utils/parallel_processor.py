@@ -2,9 +2,11 @@
 
 import os
 import multiprocessing
+import time
 from app.utils import extract_analytics
 
 def run_analysis_in_parallel(stems_output_dir):
+    initialTime = time.time()
     """
     Analyzes all audio stems in parallel and returns a dictionary of the results.
     """
@@ -28,5 +30,5 @@ def run_analysis_in_parallel(stems_output_dir):
 
     # Map the results back to a dictionary for easy access
     all_descriptions = {task[0]: result for task, result in zip(tasks, results_list)}
-    
+    print(f"✅ All analyses complete in {time.time() - initialTime:.2f} seconds.")
     return all_descriptions

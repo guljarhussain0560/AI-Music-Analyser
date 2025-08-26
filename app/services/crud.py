@@ -24,13 +24,17 @@ def get_user(db: Session, user_id: int):
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
+def get_user_by_username(db: Session, username: str):
+    return db.query(models.User).filter(models.User.username == username).first()
+
 def create_user(db: Session, user: schemas.UserCreate):
     hashed_password = get_password_hash(user.password)
     db_user = models.User(
         email=user.email,
         username=user.username,
         name=user.name,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        profile_picture_url=user.profile_picture_url
     )
     db.add(db_user)
     db.commit()
@@ -74,16 +78,60 @@ def get_song(db: Session, song_id: int):
 
     return db.query(models.Song).filter(models.Song.id == song_id).first()
 
+def get_lyrics_by_song_id(db: Session, song_id: int):
+    return db.query(models.Song.lyrics).filter(models.Song.id == song_id).first()
+
 def get_split_by_song_id(db: Session, song_id: int):
 
     return db.query(models.Split).filter(models.Split.song_id == song_id).first()
 
 def get_split_bass_info_by_song_id(db: Session, song_id: int):
-    """
-    Retrieves only the bass url and description from the split record
-    associated with a given song ID.
-    """
     return db.query(
         models.Split.bass_audio_url,
         models.Split.bass_description
-    ).filter(models.Split.song_id == song_id).first()
+    ).filter(models.Split.id == song_id).first()
+    
+def get_split_piano_info_by_song_id(db: Session, song_id: int):
+    return db.query(
+        models.Split.piano_audio_url,
+        models.Split.piano_description
+    ).filter(models.Split.id == song_id).first()
+
+
+def get_split_drum_info_by_song_id(db: Session, song_id: int):
+    return db.query(
+        models.Split.drum_audio_url,
+        models.Split.drum_description
+    ).filter(models.Split.id == song_id).first()
+
+
+def get_split_other_info_by_song_id(db: Session, song_id: int):
+    return db.query(
+        models.Split.other_audio_url,
+        models.Split.other_description
+    ).filter(models.Split.id == song_id).first()
+
+
+def get_split_vocals_info_by_song_id(db: Session, song_id: int):
+    return db.query(
+        models.Split.vocals_audio_url,
+        models.Split.vocals_description
+    ).filter(models.Split.id == song_id).first()
+
+
+def get_split_guitar_info_by_song_id(db: Session, song_id: int):
+    result = db.query(models.Split.guitar_description).filter(models.Split.id == song_id).first()
+
+    return result[0] if result else None
+
+
+def get_split_flute_info_by_song_id(db: Session, song_id: int):
+    result = db.query(models.Split.flute_description).filter(models.Split.id == song_id).first()
+
+    return result[0] if result else None
+
+
+def get_split_violin_info_by_song_id(db: Session, song_id: int):
+    result = db.query(models.Split.violin_description).filter(models.Split.id == song_id).first()
+
+    return result[0] if result else None

@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv
+venv
+env
+
+# Secrets - Never include environment files
+.env*
+
+# IDE and Tooling
+.vscode/
+.idea/
+.cache_ggshield/
+
+
+# Log files
+*.log
