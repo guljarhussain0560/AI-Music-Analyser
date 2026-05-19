@@ -108,17 +108,23 @@ This project makes extensive use of parallel execution to minimize bottlenecks:
    ```bash
    pip install -r requirements.txt
    ```
-4. **Environment Variables:**
-   Create a `.env` file in the root directory. You will need:
-   *   `DATABASE_URL` (PostgreSQL)
-   *   `GROQ_API_KEY`
-   *   AWS Credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_BUCKET_NAME`)
-   *   JWT Secrets
-5. **Run Database Migrations:**
+4. **Environment Variables & Configuration:**
+   Copy the provided `.env.example` file to create your own `.env` file:
+   ```bash
+   cp .env.example .env
+   ```
+   Fill in your credentials, including:
+   *   `DATABASE_URL` (PostgreSQL connection string)
+   *   `GROQ_API_KEY`, `GOOGLE_CLIENT_ID`, `SPOTIPY_CLIENT_ID`, etc.
+   *   AWS Credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET_NAME`)
+   
+5. **YouTube Cookies (Important):**
+   To process songs from YouTube URLs (via `yt-dlp`), you **must** provide a `cookies.txt` file in the root directory to bypass age restrictions and bot blocks. Export your YouTube cookies using a browser extension (like "Get cookies.txt LOCALLY") and save it as `cookies.txt`. Ensure the `YT_COOKIES_PATH` in your `.env` points to this file.
+6. **Run Database Migrations:**
    ```bash
    alembic upgrade head
    ```
-6. **Start the Application:**
+7. **Start the Application:**
    ```bash
    uvicorn app.main:app --reload
    ```
