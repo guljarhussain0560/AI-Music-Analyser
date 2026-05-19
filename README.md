@@ -123,9 +123,28 @@ This project makes extensive use of parallel execution to minimize bottlenecks:
    uvicorn app.main:app --reload
    ```
 
-## 🔌 API Endpoints (Overview)
+## 🔌 API Endpoints (Detailed Reference)
 
-*   **Authentication:** `/api/auth/` (Login, Register, JWT handling)
-*   **Processing:** `/api/process/` (Upload audio or submit URL to trigger the parallel pipeline)
-*   **Analytics:** `/api/analytics/` (Retrieve song records, deep analytics, and stem data)
-*   **Chatbot:** `/api/chat/ask` (Ask AI questions regarding processed data)
+### 🔐 Authentication (`/api/auth`)
+*   `POST /signup`: Register a new user.
+*   `POST /signin`: Authenticate and receive a JWT Bearer token.
+*   `POST /google`: Authenticate via Google OAuth token.
+*   `GET /users/me`: Retrieve the currently authenticated user's profile.
+
+### ⚙️ Processing Pipeline (`/api/process`)
+*   `POST /process_url`: Submits a YouTube or Spotify URL for synchronous, full-pipeline processing (download, analysis, splitting, transcription).
+*   `POST /process_audio_file`: Submits a direct audio file upload (multipart/form-data) for full-pipeline processing.
+*   `GET /get-lyrics/{song_id}`: Retrieves the extracted `.lrc` lyrics with timestamps for a processed song.
+*   `POST /rewrite-lyrics/{song_id}`: Uses an LLM to rewrite the existing lyrics based on a user-provided prompt while retaining the original timestamp alignment.
+
+### 📊 Analytics & Stems (`/api/analytics`)
+*   `GET /songs/{song_id}`: Retrieves the master record of a processed song including its global librosa analytics.
+*   `GET /splits/vocals/{song_id}`: Retrieves the vocal stem audio URL and deep vocal-specific analytics (pitch, vibrato, gender prediction, etc.).
+*   `GET /splits/bass/{song_id}`: Retrieves the bass stem audio URL and rhythmic/low-end analytics.
+*   `GET /splits/drums/{song_id}`: Retrieves the drum stem audio URL and groove/tempo analytics.
+*   `GET /splits/piano/{song_id}`: Retrieves the piano stem audio URL and harmonic/dynamic analytics.
+*   `GET /splits/other/{song_id}`: Retrieves the "other" stem audio URL and texture analytics.
+*   *Note: Deep analytics are also available via similar endpoints for `guitar`, `violin`, and `flute`.*
+
+### 🤖 Chatbot (`/api/chat`)
+*   `POST /ask`: Interact with the built-in LLM. Submit a question regarding the music data and receive an intelligent, contextual answer.
